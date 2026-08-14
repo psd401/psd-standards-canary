@@ -5,6 +5,6 @@
   "description": "Canary repo proving the PSD org enforcement stack. Safe to break on purpose.",
   "scripts": {
     "build": "node -e \"console.log('build ok')\"",
-    "test": "node --test test/"
+    "test": "node --test"
   }
 }
