@@ -1,0 +1,15 @@
+# Managed per PSD standards. Notes:
+# - bun repos use package-ecosystem "bun" (npm entries edit package.json
+#   without bun.lock -> psd-ci's frozen-lockfile install correctly refuses;
+#   found by discipline's maintainer, 2026-08-18). Trade-off: bun ecosystem
+#   has no security-UPDATE PRs (alerts unaffected; weekly digest tracks them).
+# - This canary has zero JS dependencies, so bun refuses to write a
+#   bun.lock and a "bun" ecosystem entry would only produce weekly
+#   "missing lockfile" errors from Dependabot. Add the standard bun entry
+#   (see template-nextjs-app) together with the first real dependency.
+version: 2
+updates:
+- package-ecosystem: github-actions
+  directory: /
+  schedule:
+    interval: weekly
