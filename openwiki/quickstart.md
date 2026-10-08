@@ -3,7 +3,7 @@ type: Wiki Entrypoint
 title: psd-standards-canary wiki quickstart
 description: Start here. Explains what the psd-standards-canary repository is (a throwaway PSD401 enforcement-testing repo with a minimal Node package), maps common change intents to source entry points, symbols, focused tests, and validation commands, and links every major wiki section.
 tags: [quickstart, overview, navigation, canary, ci, openwiki]
-timestamp: 2026-10-07T22:28:45-07:00
+timestamp: 2026-10-08T05:33:45Z
 openwiki:
   roles: [repository, architecture]
   change_kinds: [navigation, onboarding]
@@ -53,4 +53,3 @@ Use this table to go from a change intent to the first files to read. Commands r
 
 - **Reusable workflow internals** (`PSD401/.github` `reusable-psd-ci.yml`, `reusable-license-check.yml`, `reusable-openwiki.yml`): not in this repository, so steps, required checks, and the OpenWiki auto-merge behavior are unverified here. Source anchor: `.github/workflows/psd-ci.yml`, `.github/workflows/openwiki-update.yml`. Reason: evidence is outside this checkout. Covered as caller-side behavior in [CI workflows](delivery/ci-workflows.md).
 - **Org enforcement settings** (branch rulesets, required status checks, secret scanning, Actions policy): configured in GitHub settings and the org repository, not in files here. Source anchor: `README.md`. Reason: out of scope for file-based documentation; the architecture page describes only the repository's side.
-- **Node directory-path test failure**: reported in commit `a4bcab1` for Node 22 and 24 but not reproduced in this run. Source anchor: `package.json` `scripts.test`. Reason: needs a reproduction on the affected Node versions; described in [Build and test](delivery/build-and-test.md).

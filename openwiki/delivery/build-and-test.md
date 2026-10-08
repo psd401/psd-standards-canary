@@ -3,7 +3,7 @@ type: Delivery Reference
 title: Build and test scripts
 description: The two npm scripts (build and test) in psd-standards-canary, the single node:test unit test, the glob fix that made test discovery work on current Node, and the narrow commands to validate changes.
 tags: [build, test, node-test, npm-scripts, ci]
-timestamp: 2026-10-07T22:28:45-07:00
+timestamp: 2026-10-08T05:33:45Z
 openwiki:
   roles: [delivery, testing]
   change_kinds: [test-script, build-script, node-test]
@@ -25,7 +25,7 @@ The repository has no compiled output and no runtime code. Its delivery surface 
 | `build` | `node -e "console.log('build ok')"` | Prints `build ok` and exits 0. Nothing is compiled or bundled. |
 | `test` | `node --test "test/**/*.test.js"` | Runs every file matching `test/**/*.test.js` with the Node built-in test runner. |
 
-The `test` glob is quoted so Node expands it, not the shell. Passing the directory `test/` directly was reported in commit `a4bcab1`'s message to fail on Node 22 and Node 24 (treated as a module path, `Cannot find module '.../test'`). That report is from commit history; it was not reproduced in this run. The fix landed in `a4bcab1`, after CI on `main` had been failing since commit `4abcead`.
+The `test` glob is quoted so Node expands it, not the shell. Passing the directory `test/` directly fails: `node --test test/` treats the directory as a module path and reports `Cannot find module '.../test'` as a failing test named `test`. This was reproduced on Node v22.23.3 during the latest wiki run (exit 1). Commit `06d5b1b` ("Fix test script") changed the script to the glob form; before that fix, CI on `main` had been failing since commit `4abcead`.
 
 ## Test suite
 
