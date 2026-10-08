@@ -3,7 +3,7 @@ type: Delivery Workflow
 title: CI workflow callers
 description: How the three GitHub Actions caller workflows in psd-standards-canary (psd-ci, license-check, openwiki-update) are triggered, what permissions and concurrency they set, and how each delegates to a reusable workflow in PSD401/.github that is not stored in this repository.
 tags: [ci, github-actions, reusable-workflows, triggers, permissions]
-timestamp: 2026-10-07T22:28:45-07:00
+timestamp: 2026-10-08T05:33:45Z
 openwiki:
   roles: [delivery, operations]
   change_kinds: [workflow-trigger, reusable-workflow-delegation, permissions]
@@ -52,7 +52,7 @@ Caption: triggers for each caller workflow and the external reusable workflow ea
 
 - The reusable workflows are not in this repository. Their steps, the checks they report, and the auto-merge behavior are not inspectable here. The OpenWiki caller's commit message says `auto_merge` uses the reusable default (`true`) so that docs pull requests limited to `openwiki/` merge themselves. Treat that as a commit-message claim, not verified code.
 - Nothing in this repository runs the callers' results locally. The only local checks are the package scripts described in [Build and test](build-and-test.md).
-- `psd-ci` also runs on `push` to `main`, where a failure is not surfaced by a pull request check. Commit `a4bcab1` reports that CI on `main` had failed since `4abcead` without being noticed, because the canary gets few pushes and no failure alert covers push-triggered CI.
+- `psd-ci` also runs on `push` to `main`, where a failure is not surfaced by a pull request check. Commit `06d5b1b` reports that CI on `main` had failed since `4abcead` without being noticed, because the canary gets few pushes and no failure alert covers push-triggered CI.
 
 ## Change guidance
 
