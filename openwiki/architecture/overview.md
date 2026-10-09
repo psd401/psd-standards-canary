@@ -1,13 +1,13 @@
 ---
 type: Architecture Overview
 title: psd-standards-canary architecture overview
-description: What the psd-standards-canary repository is for, its components (package scripts, one unit test, four CI caller workflows, Dependabot config, generated OpenWiki pages), and how they relate to PSD401 org-level enforcement.
+description: What the psd-standards-canary repository is for, its components (package scripts, one unit test, five CI caller workflows including the temporary claude-review-test, Dependabot config, generated OpenWiki pages), and how they relate to PSD401 org-level enforcement.
 tags: [architecture, canary, enforcement, ci, openwiki]
-timestamp: 2026-10-09T05:13:30Z
+timestamp: 2026-10-09T05:28:11Z
 openwiki:
   roles: [architecture, repository]
   change_kinds: [repository-layout, enforcement-testing]
-  source_paths: [README.md, package.json, test/canary.test.js, .github/workflows/psd-ci.yml, .github/workflows/license-check.yml, .github/workflows/openwiki-update.yml, .github/workflows/security-scan.yml, .github/dependabot.yml, LICENSE]
+  source_paths: [README.md, package.json, test/canary.test.js, .github/workflows/psd-ci.yml, .github/workflows/license-check.yml, .github/workflows/openwiki-update.yml, .github/workflows/security-scan.yml, .github/workflows/claude-review-test.yml, .github/dependabot.yml, LICENSE]
   symbols: [scripts.build, scripts.test]
   test_paths: [test/canary.test.js]
   invariants: ["The repository has zero JavaScript dependencies and no lockfile.", "Code in this repository exists to exercise PSD401 enforcement; intentional breakage is in scope."]
@@ -28,13 +28,14 @@ openwiki:
 | License check caller | `.github/workflows/license-check.yml` | Runs on pull requests; delegates to an org reusable license check. See [CI workflows](../delivery/ci-workflows.md). |
 | OpenWiki update caller | `.github/workflows/openwiki-update.yml` | Regenerates this wiki on push, weekly, and manually. See [OpenWiki maintenance](../operations/openwiki-maintenance.md). |
 | Security scan caller | `.github/workflows/security-scan.yml` | Runs the org security scan on pull requests, pushes to `main`, weekly, and manually; read-only permissions and no forwarded secrets. See [CI workflows](../delivery/ci-workflows.md). |
+| Claude review test caller (temporary) | `.github/workflows/claude-review-test.yml` | Runs an org Claude review on pull requests (opened, ready for review, reopened) from a `claude-review/bedrock` branch of the reusable workflow; has `id-token: write` and inherits secrets. Added as a test and meant to be removed. See [CI workflows](../delivery/ci-workflows.md). |
 | Dependabot config | `.github/dependabot.yml` | Weekly `github-actions` updates only. See [Dependency updates](../operations/dependency-updates.md). |
 | License | `LICENSE` | MIT License, copyright PSD401 (2026). |
 | Generated wiki | `openwiki/` | Generated documentation (this knowledge base). Not hand-maintained; see [OpenWiki maintenance](../operations/openwiki-maintenance.md). |
 
 ## How the pieces relate
 
-- The four caller workflows contain no build or scan logic of their own. Each one `uses:` a reusable workflow from `PSD401/.github` pinned to `@main`. The reusable workflows' contents are not in this repository, so what they run against this code is an evidence gap; see [CI workflows](../delivery/ci-workflows.md) for what the callers do and do not show.
+- The five caller workflows contain no build, scan, or review logic of their own. Each one `uses:` a reusable workflow from `PSD401/.github`, pinned to `@main` except the temporary Claude review caller, which pins a branch. The reusable workflows' contents are not in this repository, so what they run against this code is an evidence gap; see [CI workflows](../delivery/ci-workflows.md) for what the callers do and do not show.
 - CI execution depends on the package scripts. The only local checks are `npm test` and `npm run build`; see [Build and test](../delivery/build-and-test.md).
 - The OpenWiki workflow writes into `openwiki/` on `main`, and the commit that added it notes that a committed wiki is needed so org-level OpenWiki smoke tests can exercise the update-an-existing-wiki path. The mechanics are in [OpenWiki maintenance](../operations/openwiki-maintenance.md).
 - Dependabot watches the workflow files, so action version bumps arrive as pull requests that run the same caller workflows. See [Dependency updates](../operations/dependency-updates.md).
@@ -54,8 +55,5 @@ openwiki:
 - [Quickstart](../quickstart.md) for task routing.
 - [Build and test](../delivery/build-and-test.md) for the scripts and the test suite.
 - [CI workflows](../delivery/ci-workflows.md) for triggers, permissions, and reusable-workflow delegation.
-- [OpenWiki maintenance](../operations/openwiki-maintenance.md) for how this wiki is regenerated.
-- [Dependency updates](../operations/dependency-updates.md) for Dependabot policy.
-for triggers, permissions, and reusable-workflow delegation.
 - [OpenWiki maintenance](../operations/openwiki-maintenance.md) for how this wiki is regenerated.
 - [Dependency updates](../operations/dependency-updates.md) for Dependabot policy.

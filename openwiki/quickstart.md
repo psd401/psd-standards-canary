@@ -3,11 +3,11 @@ type: Wiki Entrypoint
 title: psd-standards-canary wiki quickstart
 description: Start here. Explains what the psd-standards-canary repository is (a throwaway PSD401 enforcement-testing repo with a minimal Node package), maps common change intents to source entry points, symbols, focused tests, and validation commands, and links every major wiki section.
 tags: [quickstart, overview, navigation, canary, ci, openwiki]
-timestamp: 2026-10-09T05:13:30Z
+timestamp: 2026-10-09T05:28:11Z
 openwiki:
   roles: [repository, architecture]
   change_kinds: [navigation, onboarding]
-  source_paths: [README.md, package.json, .github/workflows/psd-ci.yml, .github/workflows/license-check.yml, .github/workflows/openwiki-update.yml, .github/workflows/security-scan.yml, .github/dependabot.yml, test/canary.test.js]
+  source_paths: [README.md, package.json, .github/workflows/psd-ci.yml, .github/workflows/license-check.yml, .github/workflows/openwiki-update.yml, .github/workflows/security-scan.yml, .github/workflows/claude-review-test.yml, .github/dependabot.yml, test/canary.test.js]
   symbols: [scripts.build, scripts.test]
   test_paths: [test/canary.test.js]
   invariants: ["The repository is a throwaway enforcement-testing canary with zero JavaScript dependencies."]
@@ -16,13 +16,13 @@ openwiki:
 
 # psd-standards-canary wiki quickstart
 
-`psd-standards-canary` is a public, throwaway PSD401 (Peninsula School District) repository. Its README says it exists to **test the PSD401 enforcement stack**: rulesets, required checks, secret scanning, and Actions policy. The code is intentionally minimal: a private Node package with two scripts, one unit test, four GitHub Actions caller workflows, a Dependabot config, and this generated wiki. There is no application logic, and breaking it on purpose is in scope.
+`psd-standards-canary` is a public, throwaway PSD401 (Peninsula School District) repository. Its README says it exists to **test the PSD401 enforcement stack**: rulesets, required checks, secret scanning, and Actions policy. The code is intentionally minimal: a private Node package with two scripts, one unit test, five GitHub Actions caller workflows (one of them a temporary Claude review test), a Dependabot config, and this generated wiki. There is no application logic, and breaking it on purpose is in scope.
 
 ## Start here
 
 - [Architecture overview](architecture/overview.md): what each component is for and how the components relate, including the boundary with org-level enforcement settings that live outside this repository.
 - [Build and test](delivery/build-and-test.md): the `build` and `test` scripts, the single unit test, and the Node version quirks that shaped the test command.
-- [CI workflows](delivery/ci-workflows.md): triggers, permissions, and concurrency for the `CI`, `License`, `OpenWiki Update`, and `Security Scan` workflows, and how each delegates to a reusable workflow in `PSD401/.github`.
+- [CI workflows](delivery/ci-workflows.md): triggers, permissions, and concurrency for the `CI`, `License`, `OpenWiki Update`, `Security Scan`, and temporary `Claude Review (Bedrock test)` workflows, and how each delegates to a reusable workflow in `PSD401/.github`.
 - [OpenWiki maintenance](operations/openwiki-maintenance.md): how the committed `openwiki/` tree is regenerated, why it is committed here, and the rules for editing it.
 - [Dependency updates](operations/dependency-updates.md): the Dependabot policy, the deliberate absence of a bun ecosystem entry, and what to add with the first real dependency.
 
@@ -36,6 +36,7 @@ Use this table to go from a change intent to the first files to read. Commands r
 | Build script output | [Build and test](delivery/build-and-test.md) | `package.json` | `scripts.build` | none | `node -e "console.log('build ok')"` |
 | PR and push CI wiring (`CI` workflow) | [CI workflows](delivery/ci-workflows.md) | `.github/workflows/psd-ci.yml` | job `psd-ci`; `uses:` of `reusable-psd-ci.yml@main` | none local; check the GitHub Actions run | `git diff --check -- .github/workflows` |
 | License check on pull requests | [CI workflows](delivery/ci-workflows.md) | `.github/workflows/license-check.yml`, `LICENSE` | job `license-check` | none local | `git diff --check -- .github/workflows` |
+| Claude review test caller (temporary Bedrock test; delete when the test ends) | [CI workflows](delivery/ci-workflows.md) | `.github/workflows/claude-review-test.yml` | job `claude-review`; `uses:` of `reusable-claude-review.yml@claude-review/bedrock`; `id-token: write`; `secrets: inherit` | none local; check the GitHub Actions run | `git diff --check -- .github/workflows` |
 | Org security scan triggers, permissions, or secrets (`Security Scan` workflow) | [CI workflows](delivery/ci-workflows.md) | `.github/workflows/security-scan.yml` | job `security-scan`; top-level `permissions: contents: read`; no `secrets: inherit`; `uses:` of `reusable-security-scan.yml@main` | none local; check the GitHub Actions run | `git diff --check -- .github/workflows` |
 | OpenWiki regeneration triggers, permissions, or concurrency | [OpenWiki maintenance](operations/openwiki-maintenance.md) | `.github/workflows/openwiki-update.yml` | job `openwiki`; `concurrency.group` `openwiki`; `permissions` | none local | `git status --short openwiki` after a manual run |
 | Editing or regenerating wiki pages | [OpenWiki maintenance](operations/openwiki-maintenance.md) | `openwiki/` (generated) | `openwiki/.last-update.json` `gitHead` | none | `git status --short openwiki` |
@@ -52,5 +53,6 @@ Use this table to go from a change intent to the first files to read. Commands r
 
 ## Backlog
 
-- **Reusable workflow internals** (`PSD401/.github` `reusable-psd-ci.yml`, `reusable-license-check.yml`, `reusable-openwiki.yml`, `reusable-security-scan.yml`): not in this repository, so steps, required checks, scanners, and the OpenWiki auto-merge behavior are unverified here. Source anchor: `.github/workflows/psd-ci.yml`, `.github/workflows/openwiki-update.yml`, `.github/workflows/security-scan.yml`. Reason: evidence is outside this checkout. Covered as caller-side behavior in [CI workflows](delivery/ci-workflows.md).
+- **Reusable workflow internals** (`PSD401/.github` `reusable-psd-ci.yml`, `reusable-license-check.yml`, `reusable-openwiki.yml`, `reusable-security-scan.yml`, `reusable-claude-review.yml` on the `claude-review/bedrock` branch): not in this repository, so steps, required checks, scanners, review behavior, and the OpenWiki auto-merge behavior are unverified here. Source anchor: `.github/workflows/psd-ci.yml`, `.github/workflows/openwiki-update.yml`, `.github/workflows/security-scan.yml`, `.github/workflows/claude-review-test.yml`. Reason: evidence is outside this checkout. Covered as caller-side behavior in [CI workflows](delivery/ci-workflows.md).
+- **Org enforcement settings** (branch rulesets, required status checks, secret scanning, Actions policy): configured in GitHub settings and the org repository, not in files here. Source anchor: `README.md`. Reason: out of scope for file-based documentation; the architecture page describes only the repository's side.
 - **Org enforcement settings** (branch rulesets, required status checks, secret scanning, Actions policy): configured in GitHub settings and the org repository, not in files here. Source anchor: `README.md`. Reason: out of scope for file-based documentation; the architecture page describes only the repository's side.

@@ -3,7 +3,7 @@ type: Operations Policy
 title: Dependency updates and Dependabot policy
 description: Why psd-standards-canary's Dependabot config covers only github-actions on a weekly schedule, why the bun ecosystem entry is deliberately absent while the package has zero dependencies and no bun.lock, and what to change when the first real dependency is added.
 tags: [dependabot, dependencies, bun, lockfile, github-actions, supply-chain]
-timestamp: 2026-10-09T05:13:30Z
+timestamp: 2026-10-09T05:28:11Z
 openwiki:
   roles: [operations, delivery]
   change_kinds: [dependency-policy, dependabot, lockfile]
@@ -43,7 +43,7 @@ Do not hand-add an npm entry: the file comment says npm entries edit `package.js
 
 ## Interaction with workflows
 
-- The `github-actions` ecosystem watches the `uses:` lines in `.github/workflows/`. Those lines reference org reusable workflows on `@main`, which is a branch rather than a version, so the callers' references are not version bumps Dependabot manages (general Dependabot behavior; not verified in this run). The GitHub Actions versions it can bump are whatever pinned `uses:` lines the caller files contain; the four current callers (including `security-scan.yml`) use `@main` for the reusable workflows.
+- The `github-actions` ecosystem watches the `uses:` lines in `.github/workflows/`. Those lines reference org reusable workflows on `@main`, which is a branch rather than a version, so the callers' references are not version bumps Dependabot manages (general Dependabot behavior; not verified in this run). The GitHub Actions versions it can bump are whatever pinned `uses:` lines the caller files contain; the current callers use `@main` for the reusable workflows, except the temporary `claude-review-test.yml`, which pins the `claude-review/bedrock` branch.
 - Dependabot pull requests that change a workflow run the same callers described in [CI workflows](../delivery/ci-workflows.md).
 
 ## Verification
