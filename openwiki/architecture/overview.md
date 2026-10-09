@@ -3,7 +3,7 @@ type: Architecture Overview
 title: psd-standards-canary architecture overview
 description: What the psd-standards-canary repository is for, its components (package scripts, one unit test, five CI caller workflows, Dependabot config, generated OpenWiki pages), and how they relate to PSD401 org-level enforcement.
 tags: [architecture, canary, enforcement, ci, openwiki]
-timestamp: 2026-10-09T13:26:40Z
+timestamp: 2026-10-09T21:50:22Z
 openwiki:
   roles: [architecture, repository]
   change_kinds: [repository-layout, enforcement-testing]
@@ -26,7 +26,7 @@ openwiki:
 | Unit test | `test/canary.test.js` | One `node:test` case, `the canary sings`, asserting `1 + 1 === 2`. It is the only executable test. |
 | PR and push CI caller | `.github/workflows/psd-ci.yml` | Runs on pull requests and pushes to `main`; delegates to an org reusable workflow. See [CI workflows](../delivery/ci-workflows.md). |
 | License check caller | `.github/workflows/license-check.yml` | Runs on pull requests; delegates to an org reusable license check. See [CI workflows](../delivery/ci-workflows.md). |
-| OpenWiki update caller | `.github/workflows/openwiki-update.yml` | Regenerates this wiki on push, weekly, and manually. See [OpenWiki maintenance](../operations/openwiki-maintenance.md). |
+| OpenWiki update caller | `.github/workflows/openwiki-update.yml` | Regenerates this wiki on push, weekly, and manually; passes only `BEDROCK_API_KEY` and `PSD_AUTOMATION_APP_PRIVATE_KEY` by name (not `secrets: inherit`). See [OpenWiki maintenance](../operations/openwiki-maintenance.md) and [CI workflows](../delivery/ci-workflows.md). |
 | Security scan caller | `.github/workflows/security-scan.yml` | Runs the org security scan on pull requests, pushes to `main`, weekly, and manually; read-only permissions and no forwarded secrets. See [CI workflows](../delivery/ci-workflows.md). |
 | Claude review caller | `.github/workflows/claude-review.yml` | Runs the org Claude review on pull requests (opened, ready for review, reopened); skips Dependabot actors; requests `id-token: write` and passes only `BEDROCK_API_KEY` by name (not `secrets: inherit`). Advisory per its commit message. See [CI workflows](../delivery/ci-workflows.md). |
 | Dependabot config | `.github/dependabot.yml` | Weekly `github-actions` updates only. See [Dependency updates](../operations/dependency-updates.md). |
@@ -57,4 +57,3 @@ openwiki:
 - [CI workflows](../delivery/ci-workflows.md) for triggers, permissions, and reusable-workflow delegation.
 - [OpenWiki maintenance](../operations/openwiki-maintenance.md) for how this wiki is regenerated.
 - [Dependency updates](../operations/dependency-updates.md) for Dependabot policy.
-dependency-updates.md) for Dependabot policy.

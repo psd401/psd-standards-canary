@@ -3,14 +3,14 @@ type: Operations Runbook
 title: OpenWiki maintenance for this repository
 description: How the committed openwiki/ knowledge base is regenerated (push, weekly cron, manual dispatch), why the wiki is committed in a canary repo, the concurrency and permission settings that govern it, and the rules agents must follow when editing it.
 tags: [openwiki, documentation, github-actions, operations, generated-docs]
-timestamp: 2026-10-07T22:28:45-07:00
+timestamp: 2026-10-09T21:50:22Z
 openwiki:
   roles: [operations, delivery]
   change_kinds: [wiki-regeneration, workflow-trigger, generated-docs]
   source_paths: [.github/workflows/openwiki-update.yml, AGENTS.md]
   symbols: [jobs.openwiki, concurrency.group]
   test_paths: []
-  invariants: ["Generated pages live under openwiki/ and are written by the OpenWiki job, not by hand.", "Only one OpenWiki run is active at a time in the openwiki concurrency group.", "The OpenWiki job holds contents: write, so it can push its changes."]
+  invariants: ["Generated pages live under openwiki/ and are written by the OpenWiki job, not by hand.", "Only one OpenWiki run is active at a time in the openwiki concurrency group.", "The OpenWiki job holds contents: write, so it can push its changes.", "The OpenWiki job forwards only BEDROCK_API_KEY and PSD_AUTOMATION_APP_PRIVATE_KEY by name, not secrets: inherit."]
   validation_commands: ["git status --short openwiki", "Check the OpenWiki Update workflow run in GitHub Actions after a push to main."]
 ---
 
@@ -28,6 +28,7 @@ The repository's own commit history gives the reason. Commit `a4bcab1` ("Add the
 - Concurrency: group `openwiki` with `cancel-in-progress: true`. Overlapping runs are cancelled so only the latest regeneration completes.
 - Permissions: `contents: write` and `pull-requests: write`, set by the caller because the org default token is read-only.
 - Base branch: `base_branch: main`.
+- Secrets: only `BEDROCK_API_KEY` (model) and `PSD_AUTOMATION_APP_PRIVATE_KEY` (the App that opens and merges the docs pull request) are passed by name. The caller does not use `secrets: inherit`; see [CI workflows](../delivery/ci-workflows.md#callers) for the canonical secrets policy and its commit-message rationale.
 
 ## Run flow
 
@@ -38,7 +39,7 @@ sequenceDiagram
   participant Reusable as reusable-openwiki.yml in PSD401 .github
   participant Repo as openwiki directory on main
   Event->>Caller: start openwiki job
-  Caller->>Reusable: call with base_branch main and secrets inherited
+  Caller->>Reusable: call with base_branch main and two named secrets
   Reusable->>Repo: regenerate changed pages
   Reusable->>Repo: open pull request limited to openwiki
   Note over Reusable,Repo: auto_merge defaults to true per commit a4bcab1 message
@@ -65,6 +66,12 @@ Each successful run records its commit in `openwiki/.last-update.json` (`gitHead
 
 - The generator, its model choice, and its smoke test live in the org `PSD401/.github` repository. Changes there propagate here through the `@main` pin described in [CI workflows](../delivery/ci-workflows.md).
 - Application or test changes do not require a wiki regeneration to be correct; the wiki is documentation, not a build input.
+
+## Related
+
+- [CI workflows](../delivery/ci-workflows.md) for the trigger and pinning model this workflow shares with the other callers.
+- [Build and test](../delivery/build-and-test.md) for the source the wiki describes.
+anges do not require a wiki regeneration to be correct; the wiki is documentation, not a build input.
 
 ## Related
 
