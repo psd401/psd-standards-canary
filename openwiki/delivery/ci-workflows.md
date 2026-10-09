@@ -3,20 +3,20 @@ type: Delivery Workflow
 title: CI workflow callers
 description: How the five GitHub Actions caller workflows in psd-standards-canary (psd-ci, license-check, openwiki-update, security-scan, claude-review) are triggered, what permissions and concurrency they set, and how each delegates to a reusable workflow in PSD401/.github that is not stored in this repository.
 tags: [ci, github-actions, reusable-workflows, triggers, permissions, security-scan, claude-review]
-timestamp: 2026-10-09T13:26:40Z
+timestamp: 2026-10-09T21:50:22Z
 openwiki:
   roles: [delivery, operations]
   change_kinds: [workflow-trigger, reusable-workflow-delegation, permissions]
   source_paths: [.github/workflows/psd-ci.yml, .github/workflows/license-check.yml, .github/workflows/openwiki-update.yml, .github/workflows/security-scan.yml, .github/workflows/claude-review.yml]
   symbols: [jobs.psd-ci, jobs.license-check, jobs.openwiki, jobs.security-scan, jobs.claude-review]
   test_paths: []
-  invariants: ["psd-ci runs on pull_request and on push to main only.", "license-check runs on pull_request only.", "openwiki-update holds contents: write and pull-requests: write and serializes runs in the openwiki concurrency group.", "security-scan runs on pull_request, push to main, a weekly Monday 09:00 UTC cron, and workflow_dispatch, with contents: read only and no secrets: inherit.", "claude-review runs on pull_request types opened, ready_for_review, and reopened, skips the dependabot[bot] actor, and requests id-token: write.", "claude-review forwards only BEDROCK_API_KEY by name, not secrets: inherit.", "Callers pin reusable workflows to @main deliberately, so org-level changes propagate."]
+  invariants: ["psd-ci runs on pull_request and on push to main only.", "license-check runs on pull_request only.", "openwiki-update holds contents: write and pull-requests: write and serializes runs in the openwiki concurrency group.", "security-scan runs on pull_request, push to main, a weekly Monday 09:00 UTC cron, and workflow_dispatch, with contents: read only and no secrets: inherit.", "claude-review runs on pull_request types opened, ready_for_review, and reopened, skips the dependabot[bot] actor, and requests id-token: write.", "openwiki-update forwards only BEDROCK_API_KEY and PSD_AUTOMATION_APP_PRIVATE_KEY by name, not secrets: inherit.", "claude-review forwards only BEDROCK_API_KEY by name, not secrets: inherit.", "Callers pin reusable workflows to @main deliberately, so org-level changes propagate."]
   validation_commands: ["git diff --check -- .github/workflows", "Verify changes with a pull request run in GitHub Actions; no local runner is defined in this repository."]
 ---
 
 # CI workflow callers
 
-All five workflows in `.github/workflows/` are thin callers. None of them defines build, test, license, scan, or review steps itself. Each job `uses:` a reusable workflow from the organization repository `PSD401/.github`, pinned to `@main`. Three pass `secrets: inherit` (`psd-ci`, `license-check`, `openwiki-update`). The Claude review passes one named secret, `BEDROCK_API_KEY`, and the security scan passes none (see the callers table). The behavior that actually runs in CI therefore lives outside this repository; this page documents only what the callers declare.
+All five workflows in `.github/workflows/` are thin callers. None of them defines build, test, license, scan, or review steps itself. Each job `uses:` a reusable workflow from the organization repository `PSD401/.github`, pinned to `@main`. Two pass `secrets: inherit` (`psd-ci`, `license-check`). The OpenWiki and Claude review callers each pass named secrets only: OpenWiki passes `BEDROCK_API_KEY` and `PSD_AUTOMATION_APP_PRIVATE_KEY`, and Claude review passes `BEDROCK_API_KEY`. The security scan passes none (see the callers table). The behavior that actually runs in CI therefore lives outside this repository; this page documents only what the callers declare.
 
 ```mermaid
 flowchart TD
@@ -46,7 +46,7 @@ Caption: triggers for each caller workflow and the external reusable workflow ea
 |---|---|---|---|
 | `psd-ci.yml` (name `CI`, job `psd-ci`) | `pull_request`; `push` on `main` | `PSD401/.github/.github/workflows/reusable-psd-ci.yml@main` | `secrets: inherit` |
 | `license-check.yml` (name `License`, job `license-check`) | `pull_request` only | `PSD401/.github/.github/workflows/reusable-license-check.yml@main` | `secrets: inherit` |
-| `openwiki-update.yml` (name `OpenWiki Update`, job `openwiki`) | `workflow_dispatch`; `push` on `main`; cron `0 8 * * 1` | `PSD401/.github/.github/workflows/reusable-openwiki.yml@main` | `with: base_branch: main`; `secrets: inherit`; permissions and concurrency (below) |
+| `openwiki-update.yml` (name `OpenWiki Update`, job `openwiki`) | `workflow_dispatch`; `push` on `main`; cron `0 8 * * 1` | `PSD401/.github/.github/workflows/reusable-openwiki.yml@main` | `with: base_branch: main`; `secrets` passes `BEDROCK_API_KEY` and `PSD_AUTOMATION_APP_PRIVATE_KEY` by name; permissions and concurrency (below) |
 | `security-scan.yml` (name `Security Scan`, job `security-scan`) | `pull_request`; `push` on `main`; cron `0 9 * * 1`; `workflow_dispatch` | `PSD401/.github/.github/workflows/reusable-security-scan.yml@main` | top-level and job `permissions: contents: read`; no `secrets` key, so no `secrets: inherit` |
 | `claude-review.yml` (name `Claude Review`, job `claude-review`) | `pull_request` types `opened`, `ready_for_review`, `reopened` | `PSD401/.github/.github/workflows/reusable-claude-review.yml@main` | job `permissions`: `contents`, `pull-requests`, `issues` read and `id-token: write`; `if` skips `dependabot[bot]`; `secrets` passes only `BEDROCK_API_KEY: ${{ secrets.BEDROCK_API_KEY }}` |
 
@@ -57,6 +57,7 @@ Caption: triggers for each caller workflow and the external reusable workflow ea
 - **Permissions (security scan).** `contents: read` at both the workflow and job level. It requests no write scopes, unlike the OpenWiki caller.
 - **Secrets (security scan).** The caller omits `secrets: inherit`, so no organization secrets are forwarded to the reusable scan. It can use only the token its job permissions grant. It is the only caller that forwards no secrets at all; whether the scan needs any is not visible here. Claude review forwards exactly one named secret, as described above.
 - **Permissions (OpenWiki only).** `contents: write` and `pull-requests: write`. The inline comment states the caller must grant these because the org default token is read-only.
+- **Secrets (OpenWiki only).** The caller passes exactly two named secrets, not `secrets: inherit` (commit `27c4745`, whose message says the reusable workflow reads only these two). `BEDROCK_API_KEY` is the model credential. `PSD_AUTOMATION_APP_PRIVATE_KEY` is the key for the psd-automation GitHub App that, per the commit message, opens and merges the docs pull request. Both the App role and the reusable's use of the key are commit-message claims; the reusable is not in this repository.
 - **Concurrency (OpenWiki only).** Group `openwiki` with `cancel-in-progress: true`. The workflow comment explains that several merges in a row would otherwise queue full regenerations, and only the last output survives.
 - **Action pinning.** The reusable reference uses `@main` on purpose, so central changes propagate to every repository (the comment cites a drift-kill design). The `zizmor: ignore[unpinned-uses]` annotations mark this as an accepted exception to pinning.
 
@@ -70,6 +71,7 @@ Caption: triggers for each caller workflow and the external reusable workflow ea
 
 - Changing a trigger or permission: edit only the caller file, and keep the job name stable if branch protection or required checks refer to it. Verify with a pull request run in GitHub Actions; there is no local runner.
 - Changing the reusable pin (for example `@main` to a tag): this crosses into the org's propagation policy. Escalate rather than changing it in a single repository.
+- Changing `openwiki-update.yml` secrets: keep the explicit two-name list. Adding a secret means the reusable workflow needs it; widening back to `secrets: inherit` exposes every org and repository secret to the docs job, which the commit `27c4745` removed on purpose.
 - Changing `security-scan.yml` permissions or adding `secrets: inherit`: the scan currently runs read-only and without forwarded secrets. Widening either is a policy change to confirm against the reusable workflow before merging.
 - Changing `claude-review.yml`: keep the Dependabot `if` guard, since removing it reintroduces the startup failure described in the file comment. Keep the explicit `BEDROCK_API_KEY` pass-through; switching back to `secrets: inherit` widens the review job to every org and repository secret. Its review is advisory per the commit message, so do not add it as a required check without confirming with the org workflow owners.
 - Validation before pushing: `git diff --check -- .github/workflows` is the narrowest local check available for whitespace; semantic validation happens only when Actions runs.
@@ -78,8 +80,4 @@ Caption: triggers for each caller workflow and the external reusable workflow ea
 
 - [OpenWiki maintenance](../operations/openwiki-maintenance.md) for what the OpenWiki job does after it starts.
 - [Dependency updates](../operations/dependency-updates.md) for how Dependabot keeps the `uses:` action versions current.
-- [Architecture overview](../architecture/overview.md) for how these callers fit the enforcement-testing purpose.
-.md) for how these callers fit the enforcement-testing purpose.
-nforcement-testing purpose.
-es.md) for how Dependabot keeps the `uses:` action versions current.
 - [Architecture overview](../architecture/overview.md) for how these callers fit the enforcement-testing purpose.
