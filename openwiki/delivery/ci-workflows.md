@@ -3,14 +3,14 @@ type: Delivery Workflow
 title: CI workflow callers
 description: How the five GitHub Actions caller workflows in psd-standards-canary (psd-ci, license-check, openwiki-update, security-scan, claude-review) are triggered, what permissions and concurrency they set, and how each delegates to a reusable workflow in PSD401/.github that is not stored in this repository.
 tags: [ci, github-actions, reusable-workflows, triggers, permissions, security-scan, claude-review]
-timestamp: 2026-10-09T19:38:56-07:00
+timestamp: 2026-10-09T19:50:26-07:00
 openwiki:
   roles: [delivery, operations]
-  change_kinds: [workflow-trigger, reusable-workflow-delegation, permissions]
-  source_paths: [.github/workflows/psd-ci.yml, .github/workflows/license-check.yml, .github/workflows/openwiki-update.yml, .github/workflows/security-scan.yml, .github/workflows/claude-review.yml]
-  symbols: [jobs.psd-ci, jobs.license-check, jobs.openwiki, jobs.security-scan, jobs.claude-review]
+  change_kinds: [workflow-trigger, reusable-workflow-delegation, permissions, required-check-shim]
+  source_paths: [.github/workflows/psd-ci.yml, .github/workflows/license-check.yml, .github/workflows/openwiki-update.yml, .github/workflows/security-scan.yml, .github/workflows/claude-review.yml, .github/workflows/dependabot-canary.yml]
+  symbols: [jobs.psd-ci, jobs.license-check, jobs.openwiki, jobs.security-scan, jobs.claude-review, jobs.claude-review-dependabot]
   test_paths: []
-  invariants: ["psd-ci runs on pull_request and on push to main only.", "license-check runs on pull_request only.", "openwiki-update holds contents: write and pull-requests: write and serializes runs in the openwiki concurrency group.", "security-scan runs on pull_request, push to main, a weekly Monday 09:00 UTC cron, and workflow_dispatch, with contents: read only and no secrets: inherit.", "claude-review runs on pull_request types opened, synchronize, ready_for_review, and reopened, skips the dependabot[bot] actor, and requests id-token: write.", "openwiki-update forwards only BEDROCK_API_KEY and PSD_AUTOMATION_APP_PRIVATE_KEY by name, not secrets: inherit.", "claude-review forwards only BEDROCK_API_KEY by name, not secrets: inherit.", "Callers pin reusable workflows to @main deliberately, so org-level changes propagate."]
+  invariants: ["psd-ci runs on pull_request and on push to main only.", "license-check runs on pull_request only.", "openwiki-update holds contents: write and pull-requests: write and serializes runs in the openwiki concurrency group.", "security-scan runs on pull_request, push to main, a weekly Monday 09:00 UTC cron, and workflow_dispatch, with contents: read only and no secrets: inherit.", "claude-review runs on pull_request types opened, synchronize, ready_for_review, and reopened, skips the dependabot[bot] actor, and requests id-token: write.", "claude-review-dependabot runs only for the dependabot[bot] actor, has no permissions, and reports the same claude-review check name so the required context is satisfied.", "openwiki-update forwards only BEDROCK_API_KEY and PSD_AUTOMATION_APP_PRIVATE_KEY by name, not secrets: inherit.", "claude-review forwards only BEDROCK_API_KEY by name, not secrets: inherit.", "Callers pin reusable workflows to @main deliberately, so org-level changes propagate.", "dependabot-canary.yml is a manual-only test fixture with an intentionally outdated pin and is slated for removal."]
   validation_commands: ["git diff --check -- .github/workflows", "Verify changes with a pull request run in GitHub Actions; no local runner is defined in this repository."]
 ---
 
@@ -73,7 +73,16 @@ Caption: triggers for each caller workflow and the external reusable workflow ea
 - Changing the reusable pin (for example `@main` to a tag): this crosses into the org's propagation policy. Escalate rather than changing it in a single repository.
 - Changing `openwiki-update.yml` secrets: keep the explicit two-name list. Adding a secret means the reusable workflow needs it; widening back to `secrets: inherit` exposes every org and repository secret to the docs job, which the commit `27c4745` removed on purpose.
 - Changing `security-scan.yml` permissions or adding `secrets: inherit`: the scan currently runs read-only and without forwarded secrets. Widening either is a policy change to confirm against the reusable workflow before merging.
-- Changing `claude-review.yml`: keep the Dependabot `if` guard, since removing it reintroduces the startup failure described in the file comment. Keep the explicit `BEDROCK_API_KEY` pass-through; switching back to `secrets: inherit` widens the review job to every org and repository secret. Its trigger types include `synchronize`, so each push to an open PR re-runs the review; removing that type changes how often the check runs. Commit `32dbc7c` says the review is a required check on production repos, so changes to its trigger, guard, or failure behavior affect merges and should be confirmed with the org workflow owners.
+- Changing `claude-review.yml`: keep the Dependabot `if` guard, since removing it reintroduces the startup failure described in the file comment. Keep `claude-review-dependabot` in step with the main job: its job name must stay `claude-review`, or the Dependabot required context disappears. Its reusable ref is a temporary PR-branch pin, and it should move to `@main` after PSD401/.github#27 merges. Keep the explicit `BEDROCK_API_KEY` pass-through; switching back to `secrets: inherit` widens the review job to every org and repository secret. Its trigger types include `synchronize`, so each push to an open PR re-runs the review; removing that type changes how often the check runs. Commit `32dbc7c` says the review is a required check on production repos, so changes to its trigger, guard, or failure behavior affect merges and should be confirmed with the org workflow owners.
+- Validation before pushing: `git diff --check -- .github/workflows` is the narrowest local check available for whitespace; semantic validation happens only when Actions runs.
+
+## Related
+
+- [OpenWiki maintenance](../operations/openwiki-maintenance.md) for what the OpenWiki job does after it starts.
+- [Dependency updates](../operations/dependency-updates.md) for how Dependabot keeps the `uses:` action versions current.
+- [Architecture overview](../architecture/overview.md) for how these callers fit the enforcement-testing purpose.
+.
+rigger, guard, or failure behavior affect merges and should be confirmed with the org workflow owners.
 - Validation before pushing: `git diff --check -- .github/workflows` is the narrowest local check available for whitespace; semantic validation happens only when Actions runs.
 
 ## Related
