@@ -21,9 +21,8 @@ jobs:
   # `claude-review / claude-review` check, and the skipped job above reports
   # only `claude-review`. This job has the same name and calls a no-op
   # reusable, so the required context passes.
-  # TEST (PSD401/.github#27): pinned to the PR branch; switch to @main after it merges.
   claude-review-dependabot:
     name: claude-review
     permissions: {}
     if: github.actor == 'dependabot[bot]'
-    uses: PSD401/.github/.github/workflows/reusable-claude-review-skip.yml@claude-review-dependabot-context # zizmor: ignore[unpinned-uses]
+    uses: PSD401/.github/.github/workflows/reusable-claude-review-skip.yml@main # zizmor: ignore[unpinned-uses]
