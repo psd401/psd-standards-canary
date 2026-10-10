@@ -1,0 +1,13 @@
+# TEST (PSD401/.github#27): an outdated action pin so Dependabot opens a PR
+# on this canary. Never runs (manual trigger only). Remove after the test.
+name: Dependabot canary
+on: workflow_dispatch
+permissions:
+  contents: read
+jobs:
+  noop:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        with:
+          persist-credentials: false
