@@ -13,4 +13,3 @@ updates:
   directory: /
   schedule:
     interval: weekly
-# Touched 2026-10-09 to trigger a Dependabot run for PSD401/.github#27.
