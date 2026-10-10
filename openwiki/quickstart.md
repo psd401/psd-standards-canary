@@ -3,7 +3,7 @@ type: Wiki Entrypoint
 title: psd-standards-canary wiki quickstart
 description: Start here. Explains what the psd-standards-canary repository is (a throwaway PSD401 enforcement-testing repo with a minimal Node package), maps common change intents to source entry points, symbols, focused tests, and validation commands, and links every major wiki section.
 tags: [quickstart, overview, navigation, canary, ci, openwiki]
-timestamp: 2026-10-10T02:50:26Z
+timestamp: 2026-10-10T02:55:41Z
 openwiki:
   roles: [repository, architecture]
   change_kinds: [navigation, onboarding]
@@ -37,7 +37,7 @@ Use this table to go from a change intent to the first files to read. Commands r
 | PR and push CI wiring (`CI` workflow) | [CI workflows](delivery/ci-workflows.md) | `.github/workflows/psd-ci.yml` | job `psd-ci`; `uses:` of `reusable-psd-ci.yml@main` | none local; check the GitHub Actions run | `git diff --check -- .github/workflows` |
 | License check on pull requests | [CI workflows](delivery/ci-workflows.md) | `.github/workflows/license-check.yml`, `LICENSE` | job `license-check` | none local | `git diff --check -- .github/workflows` |
 | Claude review triggers, permissions, or Dependabot guard (`Claude Review` workflow) | [CI workflows](delivery/ci-workflows.md) | `.github/workflows/claude-review.yml` | job `claude-review`; `if` skipping `dependabot[bot]`; `id-token: write`; `uses:` of `reusable-claude-review.yml@main`; `secrets` passing only `BEDROCK_API_KEY`; job `claude-review-dependabot` (same check name, Dependabot-only shim, `permissions: {}`) | none local; check the GitHub Actions run | `git diff --check -- .github/workflows` |
-| Dependabot required-check shim or the temporary canary | [CI workflows](delivery/ci-workflows.md) | `.github/workflows/claude-review.yml` (`claude-review-dependabot`), `.github/workflows/dependabot-canary.yml` | job name `claude-review` must match the required check; `dependabot-canary.yml` is `workflow_dispatch` only | none local | `git diff --check -- .github/workflows` |
+| Dependabot required-check shim (`claude-review-dependabot`) | [CI workflows](delivery/ci-workflows.md) | `.github/workflows/claude-review.yml` | job name `claude-review` must match the required check; calls `reusable-claude-review-skip.yml@main` | none local; check the GitHub Actions run | `git diff --check -- .github/workflows` |
 | Org security scan triggers, permissions, or secrets (`Security Scan` workflow) | [CI workflows](delivery/ci-workflows.md) | `.github/workflows/security-scan.yml` | job `security-scan`; top-level `permissions: contents: read`; no `secrets: inherit`; `uses:` of `reusable-security-scan.yml@main` | none local; check the GitHub Actions run | `git diff --check -- .github/workflows` |
 | OpenWiki regeneration triggers, permissions, secrets, or concurrency | [OpenWiki maintenance](operations/openwiki-maintenance.md) | `.github/workflows/openwiki-update.yml` | job `openwiki`; `concurrency.group` `openwiki`; `permissions`; `secrets` passing `BEDROCK_API_KEY` and `PSD_AUTOMATION_APP_PRIVATE_KEY` by name | none local | `git status --short openwiki` after a manual run |
 | Editing or regenerating wiki pages | [OpenWiki maintenance](operations/openwiki-maintenance.md) | `openwiki/` (generated) | `openwiki/.last-update.json` `gitHead` | none | `git status --short openwiki` |
@@ -56,4 +56,3 @@ Use this table to go from a change intent to the first files to read. Commands r
 
 - **Reusable workflow internals** (`PSD401/.github` `reusable-psd-ci.yml`, `reusable-license-check.yml`, `reusable-openwiki.yml`, `reusable-security-scan.yml`, `reusable-claude-review.yml`): not in this repository, so steps, required checks, scanners, review behavior, and the OpenWiki auto-merge behavior are unverified here. Source anchor: `.github/workflows/psd-ci.yml`, `.github/workflows/openwiki-update.yml`, `.github/workflows/security-scan.yml`, `.github/workflows/claude-review.yml`. Reason: evidence is outside this checkout. Covered as caller-side behavior in [CI workflows](delivery/ci-workflows.md).
 - **Org enforcement settings** (branch rulesets, required status checks, secret scanning, Actions policy): configured in GitHub settings and the org repository, not in files here. Source anchor: `README.md`. Reason: out of scope for file-based documentation; the architecture page describes only the repository's side.
-itecture page describes only the repository's side.
