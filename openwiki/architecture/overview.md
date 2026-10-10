@@ -3,7 +3,7 @@ type: Architecture Overview
 title: psd-standards-canary architecture overview
 description: What the psd-standards-canary repository is for, its components (package scripts, one unit test, five CI caller workflows, Dependabot config, generated OpenWiki pages), and how they relate to PSD401 org-level enforcement.
 tags: [architecture, canary, enforcement, ci, openwiki]
-timestamp: 2026-10-09T21:50:22Z
+timestamp: 2026-10-10T02:50:26Z
 openwiki:
   roles: [architecture, repository]
   change_kinds: [repository-layout, enforcement-testing]
@@ -28,7 +28,8 @@ openwiki:
 | License check caller | `.github/workflows/license-check.yml` | Runs on pull requests; delegates to an org reusable license check. See [CI workflows](../delivery/ci-workflows.md). |
 | OpenWiki update caller | `.github/workflows/openwiki-update.yml` | Regenerates this wiki on push, weekly, and manually; passes only `BEDROCK_API_KEY` and `PSD_AUTOMATION_APP_PRIVATE_KEY` by name (not `secrets: inherit`). See [OpenWiki maintenance](../operations/openwiki-maintenance.md) and [CI workflows](../delivery/ci-workflows.md). |
 | Security scan caller | `.github/workflows/security-scan.yml` | Runs the org security scan on pull requests, pushes to `main`, weekly, and manually; read-only permissions and no forwarded secrets. See [CI workflows](../delivery/ci-workflows.md). |
-| Claude review caller | `.github/workflows/claude-review.yml` | Runs the org Claude review on pull requests (opened, synchronize, ready for review, reopened); skips Dependabot actors; requests `id-token: write` and passes only `BEDROCK_API_KEY` by name (not `secrets: inherit`). Advisory per its commit message. See [CI workflows](../delivery/ci-workflows.md). |
+| Claude review caller | `.github/workflows/claude-review.yml` | Runs the org Claude review on pull requests (opened, synchronize, ready for review, reopened); skips Dependabot actors; requests `id-token: write` and passes only `BEDROCK_API_KEY` by name (not `secrets: inherit`). Advisory per its commit message. A second job, `claude-review-dependabot`, reports the same `claude-review` check name for Dependabot pull requests (required-check shim). See [CI workflows](../delivery/ci-workflows.md). |
+| Dependabot canary | `.github/workflows/dependabot-canary.yml` | Manual-only test fixture with an outdated action pin, used to make Dependabot open a PR for the PSD401/.github#27 test; slated for removal. See [CI workflows](../delivery/ci-workflows.md#boundaries-and-gaps). |
 | Dependabot config | `.github/dependabot.yml` | Weekly `github-actions` updates only. See [Dependency updates](../operations/dependency-updates.md). |
 | License | `LICENSE` | MIT License, copyright PSD401 (2026). |
 | Generated wiki | `openwiki/` | Generated documentation (this knowledge base). Not hand-maintained; see [OpenWiki maintenance](../operations/openwiki-maintenance.md). |
