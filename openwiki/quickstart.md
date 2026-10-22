@@ -3,7 +3,7 @@ type: Wiki Entrypoint
 title: psd-standards-canary wiki quickstart
 description: Start here. Explains what the psd-standards-canary repository is (a throwaway PSD401 enforcement-testing repo with a minimal Node package), maps common change intents to source entry points, symbols, focused tests, and validation commands, and links every major wiki section.
 tags: [quickstart, overview, navigation, canary, ci, openwiki]
-timestamp: 2026-10-10T02:55:41Z
+timestamp: 2026-10-22T05:39:36Z
 openwiki:
   roles: [repository, architecture]
   change_kinds: [navigation, onboarding]
@@ -34,11 +34,11 @@ Use this table to go from a change intent to the first files to read. Commands r
 |---|---|---|---|---|---|
 | Unit test behavior or the test runner | [Build and test](delivery/build-and-test.md) | `test/canary.test.js`, `package.json` | `test` case "the canary sings"; `scripts.test` | `node --test test/canary.test.js` | `node --test "test/**/*.test.js"` |
 | Build script output | [Build and test](delivery/build-and-test.md) | `package.json` | `scripts.build` | none | `node -e "console.log('build ok')"` |
-| PR and push CI wiring (`CI` workflow) | [CI workflows](delivery/ci-workflows.md) | `.github/workflows/psd-ci.yml` | job `psd-ci`; `uses:` of `reusable-psd-ci.yml@main` | none local; check the GitHub Actions run | `git diff --check -- .github/workflows` |
+| PR and push CI wiring (`CI` workflow) | [CI workflows](delivery/ci-workflows.md) | `.github/workflows/psd-ci.yml` | job `psd-ci`; `uses:` of `reusable-psd-ci.yml` pinned to SHA `1aa5f53…` (`v1.0.0`) | none local; check the GitHub Actions run | `git diff --check -- .github/workflows` |
 | License check on pull requests | [CI workflows](delivery/ci-workflows.md) | `.github/workflows/license-check.yml`, `LICENSE` | job `license-check` | none local | `git diff --check -- .github/workflows` |
-| Claude review triggers, permissions, or Dependabot guard (`Claude Review` workflow) | [CI workflows](delivery/ci-workflows.md) | `.github/workflows/claude-review.yml` | job `claude-review`; `if` skipping `dependabot[bot]`; `id-token: write`; `uses:` of `reusable-claude-review.yml@main`; `secrets` passing only `BEDROCK_API_KEY`; job `claude-review-dependabot` (same check name, Dependabot-only shim, `permissions: {}`) | none local; check the GitHub Actions run | `git diff --check -- .github/workflows` |
-| Dependabot required-check shim (`claude-review-dependabot`) | [CI workflows](delivery/ci-workflows.md) | `.github/workflows/claude-review.yml` | job name `claude-review` must match the required check; calls `reusable-claude-review-skip.yml@main` | none local; check the GitHub Actions run | `git diff --check -- .github/workflows` |
-| Org security scan triggers, permissions, or secrets (`Security Scan` workflow) | [CI workflows](delivery/ci-workflows.md) | `.github/workflows/security-scan.yml` | job `security-scan`; top-level `permissions: contents: read`; no `secrets: inherit`; `uses:` of `reusable-security-scan.yml@main` | none local; check the GitHub Actions run | `git diff --check -- .github/workflows` |
+| Claude review triggers, permissions, or Dependabot guard (`Claude Review` workflow) | [CI workflows](delivery/ci-workflows.md) | `.github/workflows/claude-review.yml` | job `claude-review`; `if` skipping `dependabot[bot]`; `id-token: write`; `uses:` of `reusable-claude-review.yml` pinned to SHA `1aa5f53…` (`v1.0.0`); `secrets` passing only `BEDROCK_API_KEY`; job `claude-review-dependabot` (same check name, Dependabot-only shim, `permissions: {}`) | none local; check the GitHub Actions run | `git diff --check -- .github/workflows` |
+| Dependabot required-check shim (`claude-review-dependabot`) | [CI workflows](delivery/ci-workflows.md) | `.github/workflows/claude-review.yml` | job name `claude-review` must match the required check; calls `reusable-claude-review-skip.yml` pinned to SHA `1aa5f53…` (`v1.0.0`) | none local; check the GitHub Actions run | `git diff --check -- .github/workflows` |
+| Org security scan triggers, permissions, or secrets (`Security Scan` workflow) | [CI workflows](delivery/ci-workflows.md) | `.github/workflows/security-scan.yml` | job `security-scan`; top-level `permissions: contents: read`; no `secrets: inherit`; `uses:` of `reusable-security-scan.yml` pinned to SHA `1aa5f53…` (`v1.0.0`) | none local; check the GitHub Actions run | `git diff --check -- .github/workflows` |
 | OpenWiki regeneration triggers, permissions, secrets, or concurrency | [OpenWiki maintenance](operations/openwiki-maintenance.md) | `.github/workflows/openwiki-update.yml` | job `openwiki`; `concurrency.group` `openwiki`; `permissions`; `secrets` passing `BEDROCK_API_KEY` and `PSD_AUTOMATION_APP_PRIVATE_KEY` by name | none local | `git status --short openwiki` after a manual run |
 | Editing or regenerating wiki pages | [OpenWiki maintenance](operations/openwiki-maintenance.md) | `openwiki/` (generated) | `openwiki/.last-update.json` `gitHead` | none | `git status --short openwiki` |
 | Dependabot scope or the bun ecosystem | [Dependency updates](operations/dependency-updates.md) | `.github/dependabot.yml`, `package.json` | `updates` `github-actions` entry | none | `git diff -- .github/dependabot.yml` |
@@ -49,6 +49,7 @@ Use this table to go from a change intent to the first files to read. Commands r
 
 - Prefer the narrowest check that proves the change. `node --test test/canary.test.js` is the fastest focused test; `node --test "test/**/*.test.js"` is what `npm test` runs. Both runs print a pass/fail summary, and failures print full diagnostics.
 - Workflow changes can only be fully validated by GitHub Actions. There is no local runner for the reusable workflows.
+- Every `uses:` ref must be a full commit SHA with a same-line `# vX.Y.Z` comment, never a branch such as `@main`. Quick check: `grep -rn 'uses:' .github/workflows`. The reasoning is in [CI workflows](delivery/ci-workflows.md#callers).
 - Do not hand-edit `openwiki/` pages unless explicitly asked; regenerate them through the OpenWiki workflow. See [OpenWiki maintenance](operations/openwiki-maintenance.md).
 - `npm` itself failed to start in the sandbox used to verify this wiki (its `env node` lookup failed), while `node` invoked directly ran the same commands. If `npm test` fails with `node: not found`, run the underlying command shown in the table.
 
