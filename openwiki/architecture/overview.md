@@ -3,7 +3,7 @@ type: Architecture Overview
 title: psd-standards-canary architecture overview
 description: What the psd-standards-canary repository is for, its components (package scripts, one unit test, five CI caller workflows, Dependabot config, generated OpenWiki pages), and how they relate to PSD401 org-level enforcement.
 tags: [architecture, canary, enforcement, ci, openwiki]
-timestamp: 2026-10-10T02:55:41Z
+timestamp: 2026-10-22T05:39:36Z
 openwiki:
   roles: [architecture, repository]
   change_kinds: [repository-layout, enforcement-testing]
@@ -35,7 +35,7 @@ openwiki:
 
 ## How the pieces relate
 
-- The five caller workflows contain no build, scan, license, or review logic of their own. Each one `uses:` a reusable workflow from `PSD401/.github`, pinned to `@main`. The reusable workflows' contents are not in this repository, so what they run against this code is an evidence gap; see [CI workflows](../delivery/ci-workflows.md) for what the callers do and do not show.
+- The five caller workflows contain no build, scan, license, or review logic of their own. Each one `uses:` a reusable workflow from `PSD401/.github`, pinned to a full commit SHA for the `v1.0.0` release (every `uses:` ref in the repository is SHA-pinned; see [CI workflows](../delivery/ci-workflows.md#callers)). The reusable workflows' contents are not in this repository, so what they run against this code is an evidence gap; see [CI workflows](../delivery/ci-workflows.md) for what the callers do and do not show.
 - CI execution depends on the package scripts. The only local checks are `npm test` and `npm run build`; see [Build and test](../delivery/build-and-test.md).
 - The OpenWiki workflow writes into `openwiki/` on `main`, and the commit that added it notes that a committed wiki is needed so org-level OpenWiki smoke tests can exercise the update-an-existing-wiki path. The mechanics are in [OpenWiki maintenance](../operations/openwiki-maintenance.md).
 - Dependabot watches the workflow files, so action version bumps arrive as pull requests that run the same caller workflows. See [Dependency updates](../operations/dependency-updates.md).

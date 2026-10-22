@@ -3,7 +3,7 @@ type: Operations Runbook
 title: OpenWiki maintenance for this repository
 description: How the committed openwiki/ knowledge base is regenerated (push, weekly cron, manual dispatch), why the wiki is committed in a canary repo, the concurrency and permission settings that govern it, and the rules agents must follow when editing it.
 tags: [openwiki, documentation, github-actions, operations, generated-docs]
-timestamp: 2026-10-09T19:38:56-07:00
+timestamp: 2026-10-22T05:39:36Z
 openwiki:
   roles: [operations, delivery]
   change_kinds: [wiki-regeneration, workflow-trigger, generated-docs]
@@ -64,7 +64,7 @@ Each successful run records its commit in `openwiki/.last-update.json` (`gitHead
 
 ## Scope boundaries
 
-- The generator, its model choice, and its smoke test live in the org `PSD401/.github` repository. Changes there propagate here through the `@main` pin described in [CI workflows](../delivery/ci-workflows.md).
+- The generator, its model choice, and its smoke test live in the org `PSD401/.github` repository. Changes there reach this repository only when the `v1.0.0` SHA pin on the OpenWiki caller is moved, as described in [CI workflows](../delivery/ci-workflows.md). The pin is a full commit SHA, so an upstream merge does not change this repository's run until the pin is updated.
 - Application or test changes do not require a wiki regeneration to be correct; the wiki is documentation, not a build input.
 
 ## Related

@@ -3,7 +3,7 @@ type: Operations Policy
 title: Dependency updates and Dependabot policy
 description: Why psd-standards-canary's Dependabot config covers only github-actions on a weekly schedule, why the bun ecosystem entry is deliberately absent while the package has zero dependencies and no bun.lock, and what to change when the first real dependency is added.
 tags: [dependabot, dependencies, bun, lockfile, github-actions, supply-chain]
-timestamp: 2026-10-10T02:55:41Z
+timestamp: 2026-10-22T05:39:36Z
 openwiki:
   roles: [operations, delivery]
   change_kinds: [dependency-policy, dependabot, lockfile]
@@ -43,7 +43,7 @@ Do not hand-add an npm entry: the file comment says npm entries edit `package.js
 
 ## Interaction with workflows
 
-- The `github-actions` ecosystem watches the `uses:` lines in `.github/workflows/`. Those lines reference org reusable workflows on `@main`, which is a branch rather than a version, so the callers' references are not version bumps Dependabot manages (general Dependabot behavior; not verified in this run). The GitHub Actions versions it can bump are whatever pinned `uses:` lines the caller files contain; the current callers all use `@main` for the reusable workflows.
+- The `github-actions` ecosystem watches the `uses:` lines in `.github/workflows/`. Since commit `f350896`, every `uses:` ref is a full commit SHA with a `# vX.Y.Z` comment, including the six org reusable workflows pinned to `PSD401/.github` `v1.0.0`. The commit message says the org standard expects Dependabot to bump these pins, which is the intended path for reusable-workflow updates. Whether Dependabot actually opens those pull requests here is not verified in this run. Before that change, the reusable refs were `@main`, a branch that Dependabot cannot version-bump.
 - Dependabot pull requests that change a workflow run the same callers described in [CI workflows](../delivery/ci-workflows.md).
 - Dependabot-triggered pull requests run the `claude-review` caller's Dependabot-only job, which reports the required check without a review. See [CI workflows](../delivery/ci-workflows.md#callers).
 
