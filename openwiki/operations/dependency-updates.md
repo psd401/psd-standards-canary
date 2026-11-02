@@ -3,7 +3,7 @@ type: Operations Policy
 title: Dependency updates and Dependabot policy
 description: Why psd-standards-canary's Dependabot config covers only github-actions on a weekly schedule, why the bun ecosystem entry is deliberately absent while the package has zero dependencies and no bun.lock, and what to change when the first real dependency is added.
 tags: [dependabot, dependencies, bun, lockfile, github-actions, supply-chain]
-timestamp: 2026-10-22T05:39:36Z
+timestamp: 2026-11-02T08:14:29Z
 openwiki:
   roles: [operations, delivery]
   change_kinds: [dependency-policy, dependabot, lockfile]
@@ -52,6 +52,12 @@ Do not hand-add an npm entry: the file comment says npm entries edit `package.js
 - `git diff -- .github/dependabot.yml` for the change itself.
 - Dependabot activity is visible in the repository's Dependabot settings; there is no local command that exercises it.
 - Once a bun entry exists, confirm `bun.lock` is committed in the same change, because the frozen-lockfile install in `psd-ci` depends on it.
+
+## Related
+
+- [Build and test](../delivery/build-and-test.md) for the scripts that use no installed packages today.
+- [Architecture overview](../architecture/overview.md) for why the package is kept dependency-free.
+bun entry exists, confirm `bun.lock` is committed in the same change, because the frozen-lockfile install in `psd-ci` depends on it.
 
 ## Related
 
