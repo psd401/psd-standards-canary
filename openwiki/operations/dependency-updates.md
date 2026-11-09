@@ -57,9 +57,3 @@ Do not hand-add an npm entry: the file comment says npm entries edit `package.js
 
 - [Build and test](../delivery/build-and-test.md) for the scripts that use no installed packages today.
 - [Architecture overview](../architecture/overview.md) for why the package is kept dependency-free.
-bun entry exists, confirm `bun.lock` is committed in the same change, because the frozen-lockfile install in `psd-ci` depends on it.
-
-## Related
-
-- [Build and test](../delivery/build-and-test.md) for the scripts that use no installed packages today.
-- [Architecture overview](../architecture/overview.md) for why the package is kept dependency-free.
