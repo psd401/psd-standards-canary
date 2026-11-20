@@ -1,6 +1,7 @@
-# Calls the org reusable that turns on auto-merge for Dependabot PRs whose every
-# update is a patch to a development dependency (standards/04-security.md rule 4).
-# Pinned to the PSD401/.github#78 branch commit for the pre-release canary run.
+# Turns on auto-merge for a Dependabot PR whose every update is a patch to a
+# development dependency (standards/04-security.md rule 4). GitHub merges it
+# once the required checks pass. Every other PR waits for a person.
+# Set merge_method to a method this repo allows: merge, squash or rebase.
 name: Dependabot auto-merge
 "on": pull_request
 permissions: {}
@@ -10,6 +11,6 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-    uses: PSD401/.github/.github/workflows/reusable-dependabot-auto-merge.yml@3eeea0fd824097793fe641f3e77fa9f4c279eb3d # pre-release
+    uses: PSD401/.github/.github/workflows/reusable-dependabot-auto-merge.yml@6e5e24ce26be55aebe0b786f4190cda409d4d33a # v1.10.0
     with:
       merge_method: squash
