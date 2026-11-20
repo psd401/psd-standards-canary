@@ -7,10 +7,10 @@ timestamp: 2026-11-02T08:14:29Z
 openwiki:
   roles: [operations, delivery]
   change_kinds: [dependency-policy, dependabot, lockfile]
-  source_paths: [.github/dependabot.yml, package.json]
-  symbols: [updates, package-ecosystem]
+  source_paths: [.github/dependabot.yml, package.json, .github/workflows/dependabot-auto-merge.yml]
+  symbols: [updates, package-ecosystem, jobs.auto-merge]
   test_paths: []
-  invariants: ["package.json declares no dependencies, so no lockfile is committed.", "Dependabot updates only github-actions, weekly, from the repository root.", "A bun ecosystem entry must be added together with the first real dependency and its bun.lock."]
+  invariants: ["package.json declares no dependencies, so no lockfile is committed.", "Dependabot updates only github-actions, weekly, from the repository root.", "The dependabot-auto-merge caller acts only on pull requests authored by dependabot[bot] and is pinned to a pre-release commit, not the v1.0.0 release.", "A bun ecosystem entry must be added together with the first real dependency and its bun.lock."]
   validation_commands: ["git diff -- .github/dependabot.yml", "Check the Dependabot run or pull requests in the GitHub repository settings after a change."]
 ---
 
@@ -43,13 +43,15 @@ Do not hand-add an npm entry: the file comment says npm entries edit `package.js
 
 ## Interaction with workflows
 
-- The `github-actions` ecosystem watches the `uses:` lines in `.github/workflows/`. Since commit `f350896`, every `uses:` ref is a full commit SHA with a `# vX.Y.Z` comment, including the six org reusable workflows pinned to `PSD401/.github` `v1.0.0`. The commit message says the org standard expects Dependabot to bump these pins, which is the intended path for reusable-workflow updates. Whether Dependabot actually opens those pull requests here is not verified in this run. Before that change, the reusable refs were `@main`, a branch that Dependabot cannot version-bump.
+- The `github-actions` ecosystem watches the `uses:` lines in `.github/workflows/`. Since commit `f350896`, every `uses:` ref is a full commit SHA, and the six org reusable workflows it pinned are at `PSD401/.github` `v1.0.0`. The later Dependabot auto-merge caller is the exception: its ref is a different full SHA (`3eeea0fd…`) with a `# pre-release` comment instead of a version tag, so a release-based bump path does not describe it. Whether Dependabot can version-bump a `# pre-release` pin is not verified here. The commit message says the org standard expects Dependabot to bump these pins, which is the intended path for reusable-workflow updates. Whether Dependabot actually opens those pull requests here is not verified in this run. Before that change, the reusable refs were `@main`, a branch that Dependabot cannot version-bump.
 - Dependabot pull requests that change a workflow run the same callers described in [CI workflows](../delivery/ci-workflows.md).
 - Dependabot-triggered pull requests run the `claude-review` caller's Dependabot-only job, which reports the required check without a review. See [CI workflows](../delivery/ci-workflows.md#callers).
+- Dependabot-authored pull requests also run the `dependabot-auto-merge` caller (`.github/workflows/dependabot-auto-merge.yml`). Its job is guarded to the `dependabot[bot]` actor and calls a `PSD401/.github` reusable with `contents: write`, `pull-requests: write`, and `merge_method: squash`. Its file comment says it targets patch updates to development dependencies, a rule that this repository cannot exercise today because it has no npm dependencies and Dependabot only watches `github-actions`. Changing the Dependabot scope therefore also changes which pull requests reach this auto-merge path; see [CI workflows](../delivery/ci-workflows.md#callers) for its trigger and permission details.
 
 ## Verification
 
 - `git diff -- .github/dependabot.yml` for the change itself.
+- `grep -rn 'uses:' .github/workflows` to confirm which reusable refs are release-pinned and which (currently `dependabot-auto-merge.yml`) are not.
 - Dependabot activity is visible in the repository's Dependabot settings; there is no local command that exercises it.
 - Once a bun entry exists, confirm `bun.lock` is committed in the same change, because the frozen-lockfile install in `psd-ci` depends on it.
 
