@@ -1,7 +1,7 @@
 {
-  "updatedAt": "2026-11-09T08:14:01.431Z",
+  "updatedAt": "2026-11-20T23:39:52.581Z",
   "command": "update",
-  "gitHead": "2343bbeb435158958b8e489c3176c52585d7cadb",
+  "gitHead": "29bc0bc6a2ea22a7850689249fb22c26d761afe9",
   "model": "us.anthropic.claude-haiku-5-5",
   "status": "complete",
   "language": "en"
