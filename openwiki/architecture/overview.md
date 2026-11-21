@@ -3,7 +3,7 @@ type: Architecture Overview
 title: psd-standards-canary architecture overview
 description: What the psd-standards-canary repository is for, its components (package scripts, one unit test, six CI caller workflows including the Dependabot auto-merge caller, Dependabot config, generated OpenWiki pages), and how they relate to PSD401 org-level enforcement.
 tags: [architecture, canary, enforcement, ci, openwiki]
-timestamp: 2026-10-22T05:39:36Z
+timestamp: 2026-11-20T23:58:31Z
 openwiki:
   roles: [architecture, repository]
   change_kinds: [repository-layout, enforcement-testing]
@@ -29,14 +29,14 @@ openwiki:
 | OpenWiki update caller | `.github/workflows/openwiki-update.yml` | Regenerates this wiki on push, weekly, and manually; passes only `BEDROCK_API_KEY` and `PSD_AUTOMATION_APP_PRIVATE_KEY` by name (not `secrets: inherit`). See [OpenWiki maintenance](../operations/openwiki-maintenance.md) and [CI workflows](../delivery/ci-workflows.md). |
 | Security scan caller | `.github/workflows/security-scan.yml` | Runs the org security scan on pull requests, pushes to `main`, weekly, and manually; read-only permissions and no forwarded secrets. See [CI workflows](../delivery/ci-workflows.md). |
 | Claude review caller | `.github/workflows/claude-review.yml` | Runs the org Claude review on pull requests (opened, synchronize, ready for review, reopened); skips Dependabot actors; requests `id-token: write` and passes only `BEDROCK_API_KEY` by name (not `secrets: inherit`). Advisory per its commit message. A second job, `claude-review-dependabot`, reports the same `claude-review` check name for Dependabot pull requests (required-check shim). See [CI workflows](../delivery/ci-workflows.md). |
-| Dependabot auto-merge caller | `.github/workflows/dependabot-auto-merge.yml` | Runs on pull requests but only for `dependabot[bot]` authors; calls an org reusable that enables squash auto-merge, pinned to a pre-release commit rather than `v1.0.0`. Holds `contents: write` and `pull-requests: write`, no secrets. See [CI workflows](../delivery/ci-workflows.md#callers). |
+| Dependabot auto-merge caller | `.github/workflows/dependabot-auto-merge.yml` | Runs on pull requests but only for `dependabot[bot]` authors; calls an org reusable that enables squash auto-merge, pinned to the `v1.10.0` release rather than `v1.0.0`. Holds `contents: write` and `pull-requests: write`, no secrets. See [CI workflows](../delivery/ci-workflows.md#callers). |
 | Dependabot config | `.github/dependabot.yml` | Weekly `github-actions` updates only. See [Dependency updates](../operations/dependency-updates.md). |
 | License | `LICENSE` | MIT License, copyright PSD401 (2026). |
 | Generated wiki | `openwiki/` | Generated documentation (this knowledge base). Not hand-maintained; see [OpenWiki maintenance](../operations/openwiki-maintenance.md). |
 
 ## How the pieces relate
 
-- The six caller workflows contain no build, scan, license, review, or merge logic of their own. Each one `uses:` a reusable workflow from `PSD401/.github`, pinned to a full commit SHA. Five pin the `v1.0.0` release; the Dependabot auto-merge caller pins a pre-release commit instead (every `uses:` ref in the repository is SHA-pinned; see [CI workflows](../delivery/ci-workflows.md#callers)). The reusable workflows' contents are not in this repository, so what they run against this code is an evidence gap; see [CI workflows](../delivery/ci-workflows.md) for what the callers do and do not show.
+- The six caller workflows contain no build, scan, license, review, or merge logic of their own. Each one `uses:` a reusable workflow from `PSD401/.github`, pinned to a full commit SHA. Six pin the `v1.0.0` release; the Dependabot auto-merge caller pins the `v1.10.0` release instead (every `uses:` ref in the repository is SHA-pinned; see [CI workflows](../delivery/ci-workflows.md#callers)). The reusable workflows' contents are not in this repository, so what they run against this code is an evidence gap; see [CI workflows](../delivery/ci-workflows.md) for what the callers do and do not show.
 - CI execution depends on the package scripts. The only local checks are `npm test` and `npm run build`; see [Build and test](../delivery/build-and-test.md).
 - The OpenWiki workflow writes into `openwiki/` on `main`, and the commit that added it notes that a committed wiki is needed so org-level OpenWiki smoke tests can exercise the update-an-existing-wiki path. The mechanics are in [OpenWiki maintenance](../operations/openwiki-maintenance.md).
 - Dependabot watches the workflow files, so action version bumps arrive as pull requests that run the same caller workflows. Those Dependabot pull requests are also the only ones the Dependabot auto-merge caller acts on. See [Dependency updates](../operations/dependency-updates.md).
@@ -62,3 +62,4 @@ ite.
 - [CI workflows](../delivery/ci-workflows.md) for triggers, permissions, and reusable-workflow delegation.
 - [OpenWiki maintenance](../operations/openwiki-maintenance.md) for how this wiki is regenerated.
 - [Dependency updates](../operations/dependency-updates.md) for Dependabot policy.
+
