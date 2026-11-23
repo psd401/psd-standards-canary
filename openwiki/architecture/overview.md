@@ -58,8 +58,4 @@ openwiki:
 - [CI workflows](../delivery/ci-workflows.md) for triggers, permissions, and reusable-workflow delegation.
 - [OpenWiki maintenance](../operations/openwiki-maintenance.md) for how this wiki is regenerated.
 - [Dependency updates](../operations/dependency-updates.md) for Dependabot policy.
-ite.
-- [CI workflows](../delivery/ci-workflows.md) for triggers, permissions, and reusable-workflow delegation.
-- [OpenWiki maintenance](../operations/openwiki-maintenance.md) for how this wiki is regenerated.
-- [Dependency updates](../operations/dependency-updates.md) for Dependabot policy.
 

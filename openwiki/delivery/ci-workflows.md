@@ -87,9 +87,3 @@ Caption: triggers for each caller workflow and the external reusable workflow ea
 - [OpenWiki maintenance](../operations/openwiki-maintenance.md) for what the OpenWiki job does after it starts.
 - [Dependency updates](../operations/dependency-updates.md) for how Dependabot keeps the `uses:` action versions current and how the Dependabot auto-merge caller fits that path.
 - [Architecture overview](../architecture/overview.md) for how these callers fit the enforcement-testing purpose.
-sting purpose.
-) for how these callers fit the enforcement-testing purpose.
-w these callers fit the enforcement-testing purpose.
-sting purpose.
-) for how these callers fit the enforcement-testing purpose.
-t the enforcement-testing purpose.
