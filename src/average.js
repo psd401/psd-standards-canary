@@ -5,7 +5,7 @@
  */
 function average(nums) {
   const total = nums.reduce((sum, n) => sum + n, 0);
-  return total / (nums.length - 1);
+  return total / nums.length;
 }
 
 module.exports = { average };
