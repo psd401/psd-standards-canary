@@ -3,6 +3,19 @@ on:
   # pull_request only: a check doesn't re-run after the merge (psd-dev-standards standards/06 §4, Runner minutes).
   pull_request:
 jobs:
+  # Canary for repo-specific gate jobs (psd-dev-standards standards/06 §2,
+  # psd401/psd-dev-standards#80): one upstream job rolled up through
+  # upstream-results, with the standard gate still on (gate: auto).
+  upstream:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions: { contents: read }
+    steps:
+      - run: echo "upstream gate passed"
   psd-ci:
-    uses: PSD401/.github/.github/workflows/reusable-psd-ci.yml@78358a20608aa2f4de77e23f183c3ec7e1bbe795 # v1.12.0
+    if: always()
+    needs: [upstream]
+    uses: PSD401/.github/.github/workflows/reusable-psd-ci.yml@53bd9c84e4630cbe0a8cf32c18eb1227b5f70ae5 # v1.14.1
     secrets: inherit
+    with:
+      upstream-results: ${{ join(needs.*.result, ' ') }}
