@@ -1,6 +1,7 @@
 # Turns on auto-merge for a Dependabot PR whose every update is a patch to a
-# development dependency (standards/04-security.md rule 4). GitHub merges it
-# once the required checks pass. Every other PR waits for a person.
+# development dependency, or a patch or minor bump of the shared workflows in
+# PSD401/.github (standards/04-security.md rule 4). GitHub merges it once the
+# required checks pass. Every other PR waits for a person.
 # Set merge_method to a method this repo allows: merge, squash or rebase.
 name: Dependabot auto-merge
 "on": pull_request
